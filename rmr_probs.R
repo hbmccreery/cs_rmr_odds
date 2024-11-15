@@ -131,7 +131,6 @@ determineMatchupsWithinBucket <- function(potential_matched_teams, previous_matc
   return(potential_matched_teams)
 }
 
-
 simulateRound2 <- function(initial_round_matrix) {
   round_1_results <- determineRoundWinners(initial_round_matrix)
   
@@ -512,10 +511,10 @@ simulateRound6 <- function(round_5_matrix) {
 # in volvo's data, 1 pt win prob approx 0.8 pt observed wins
 WIN_PROB_SCALER <- 0.8
 
-win_prob_matrix <- eu_rmr_a_seeds %>%
+win_prob_matrix <- eu_rmr_b_seeds %>%
   select(team_a_name = name, team_a_seed = rmr_seed) %>%
   crossing(
-    eu_rmr_a_seeds %>%
+    eu_rmr_b_seeds %>%
       select(team_b_name = name, team_b_seed = rmr_seed)
   ) %>%
   filter(team_a_name != team_b_name) %>%
@@ -533,7 +532,7 @@ win_prob_matrix <- eu_rmr_a_seeds %>%
     team_a_win_prob = (0.8 * (map2_dbl(team_a_power, team_b_power, getMatchProbability) - 0.5)) + 0.5
   )
 
-initial_round_games <- eu_rmr_a_seeds %>%
+initial_round_games <- eu_rmr_b_seeds %>%
   mutate(match_idx = rmr_seed %% 8)
 
 initial_round_probs <- initial_round_games %>%
@@ -555,7 +554,7 @@ initial_round_probs <- initial_round_games %>%
   ) %>%
   mutate(total_wins = 0, total_losses = 0)
 
-TOTAL_SIM_COUNT <- 100
+TOTAL_SIM_COUNT <- 1000
 
 start_time <- Sys.time()
 
@@ -806,7 +805,7 @@ applyTableFormat <- function(gt_obj) {
     )
 }
 
-for(team_name_out in eu_rmr_a_seeds$name) {
+for(team_name_out in eu_rmr_b_seeds$name) {
   table_01 <- generateResultsTable(team_name_out, "0-1", round_2_results)
   table_10 <- generateResultsTable(team_name_out, "1-0", round_2_results)
   
@@ -945,7 +944,7 @@ prob_output_data <- round_6_results %>%
     by = c('name' = 'team_name')
   ) %>%
   left_join(
-    eu_rmr_a_seeds,
+    eu_rmr_b_seeds,
     by = c('name')
   ) %>%
   mutate(
@@ -1058,7 +1057,7 @@ prob_output_data %>%
     weight = 500
   ) %>%
   gtsave(
-    glue("Documents/development/test_rmr_out/eu_rmr_a_odds.png"),
+    glue("Documents/development/test_rmr_out/eu_rmr_b_odds.png"),
     vwidth = 1000,
     vheight = 1000,
     expand = 0
